@@ -1,0 +1,20 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#2c3e50"/>
+  
+  <!-- Globe Grid -->
+  <circle cx="100" cy="100" r="70" fill="none" stroke="#3498db" stroke-width="2"/>
+  <ellipse cx="100" cy="100" rx="70" ry="30" fill="none" stroke="#3498db" stroke-width="1.5"/>
+  <ellipse cx="100" cy="100" rx="70" ry="50" fill="none" stroke="#3498db" stroke-width="1.5"/>
+  <line x1="30" y1="100" x2="170" y2="100" stroke="#3498db" stroke-width="1.5"/>
+  <line x1="100" y1="30" x2="100" y2="170" stroke="#3498db" stroke-width="2"/>
+  
+  <!-- Continents (simplified) -->
+  <path d="M 60 80 Q 65 75 70 80 L 75 85 L 70 90 L 60 88 Z" fill="#ecf0f1" opacity="0.8"/>
+  <path d="M 120 70 Q 130 65 140 70 L 145 80 L 135 85 L 120 82 Z" fill="#ecf0f1" opacity="0.8"/>
+  <path d="M 85 110 Q 95 105 105 110 L 110 120 L 100 125 L 85 120 Z" fill="#ecf0f1" opacity="0.8"/>
+  
+  <!-- Letter 'G' for Geopolitics -->
+  <text x="100" y="115" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+        fill="#ecf0f1" text-anchor="middle" opacity="0.3">G</text>
+</svg>
