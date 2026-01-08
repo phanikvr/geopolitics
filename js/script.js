@@ -332,12 +332,20 @@ function initContentRender() {
     });
 
     function openArticle(url) {
+        console.log(`Loading article:${window.location.origin + '/' + url}`);
         fetch(url)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to load article');
                 return response.text();
             })
             .then(html => {
+                // google analytics tracking for SPA article views
+                const urlObj = new URL(`${window.location.origin + '/' + url}`);
+                console.log('Tracking page view for:', urlObj.pathname);
+                gtag('event', 'page_view', {                   
+                    page_location: `${window.location.origin + '/' + url}`,
+                    page_path: urlObj.pathname
+                });
                 // Parse the HTML
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
