@@ -1,13 +1,28 @@
 // ========================================
 // Geopolitical Analysis Website - Main JavaScript
 // ========================================
+function isMobile() {
+    // Most reliable method
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    const isAndroid = /android/.test(userAgent);
+
+    // Touch capability (mobile/tablet have touch)
+    const hasTouch = ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (navigator.msMaxTouchPoints > 0);
+
+    // Screen size (optional)
+    const isSmallScreen = window.innerWidth <= 1024;
+
+    return (isIOS || isAndroid || hasTouch) && isSmallScreen;
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Geopolitical Analysis website loaded');
 
     // Initialize all features
     initNavigation();
-    initContactForm();
     initSmoothScroll();
     initActiveNavigation();
     initReportsCarousel();
@@ -80,7 +95,7 @@ function handleContactFormSubmit(e) {
                 document.getElementById('contactForm').reset();
             })
             .finally(() => {
-                 return false;
+                return false;
             });
     }
     return false;
@@ -248,26 +263,48 @@ function initReportsCarousel() {
     if (!prevBtn || !nextBtn) return;
 
     const cards = Array.from(grid.querySelectorAll('.report-card'));
-    if (cards.length <= 1) {
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
-        return;
-    }
 
     function updateMode() {
-        const needsCarousel = cards.length > 4;
-        if (needsCarousel) {
+        if (isMobile()) {
+            grid.classList.add('has-many-cards');
+            // MOBILE: Always show carousel, hide arrows
             container.classList.add('is-carousel');
             grid.classList.add('is-carousel');
-            prevBtn.style.display = 'grid';
-            nextBtn.style.display = 'grid';
-        } else {
-            container.classList.remove('is-carousel');
-            grid.classList.remove('is-carousel');
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            grid.scrollLeft = 0;
+            grid.style.overflowX = 'auto';           
+            // setup touch scrolling
+            setupTouchScrolling();
         }
+        else {
+            const needsCarousel = cards.length > 4;
+            if (needsCarousel) {
+                container.classList.add('is-carousel');
+                grid.classList.add('is-carousel');
+                prevBtn.style.display = 'grid';
+                nextBtn.style.display = 'grid';
+            } else {
+                container.classList.remove('is-carousel');
+                grid.classList.remove('is-carousel');
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                grid.scrollLeft = 0;
+            }
+        }
+    }
+
+    // Setup touch scrolling for mobile
+    function setupTouchScrolling() {
+        let startX = 0;
+        let scrollLeft = 0;
+
+        grid.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX;
+            scrollLeft = grid.scrollLeft;
+        }, { passive: true });
+
+        grid.addEventListener('touchmove', (e) => {
+            if (!isMobile()) return;
+            e.preventDefault();
+        }, { passive: false });
     }
 
     function slide(direction) {
@@ -275,8 +312,14 @@ function initReportsCarousel() {
         const style = window.getComputedStyle(firstCard);
         const marginRight = parseFloat(style.marginRight) || 0;
         const marginLeft = parseFloat(style.marginLeft) || 0;
-        const cardWidth = firstCard.getBoundingClientRect().width + marginLeft + marginRight;
-        const step = Math.max(cardWidth, grid.clientWidth * 0.8);
+        const cardWidth = firstCard.offsetWidth + marginLeft + marginRight;
+        let step;
+        if (isMobile()) {
+            step = cardWidth;
+        }
+        else {
+            step = Math.max(cardWidth, grid.clientWidth * 0.8);
+        }
         grid.scrollBy({ left: direction * step, behavior: 'smooth' });
     }
 
