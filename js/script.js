@@ -55,7 +55,7 @@ function initContactForm() {
     const contactForm = document.getElementById('contactForm');
 
     if (contactForm) {
-        contactForm.addEventListener('submit', handleContactFormSubmit);
+        contactForm.addEventListener('click', handleContactFormSubmit);
     }
 }
 
@@ -72,16 +72,40 @@ function handleContactFormSubmit(e) {
 
     // Validate form
     if (validateContactForm(formData)) {
-        // In a real implementation, this would send data to a backend
-        // For now, we'll just show a success message
-        showFormMessage('Thank you for your message! We will get back to you soon.', 'success');
 
-        // Reset form
-        document.getElementById('contactForm').reset();
-
-        // Log form data (for development purposes)
-        console.log('Form submitted:', formData);
+        // Send data to server
+        sendFormToServer(formData)
+            .then(response => {
+                showFormMessage('Thank you for your message! We will get back to you soon.', 'success');
+                document.getElementById('contactForm').reset();
+            })
+            .finally(() => {
+                 return false;
+            });
     }
+    return false;
+}
+
+async function sendFormToServer(formData) {
+    try {
+        const msg = formData.message.substring(0, 80);
+        gtag('event', 'mailto_click', {
+            link_location: btoa(msg),
+            recipient: formData.email
+        });
+
+    } catch (error) {
+        const msg = error.message.substring(0, 80);
+        gtag('event', 'mailto_click_error', {
+            link_location: btoa(msg),
+            recipient: formData.email
+        });
+    }
+    finally {
+        // Simulate successful submission for development
+        return Promise.resolve({ success: true });
+    }
+
 }
 
 function validateContactForm(data) {
@@ -101,8 +125,8 @@ function validateContactForm(data) {
         return false;
     }
 
-    if (!data.message.trim() || data.message.length < 10) {
-        showFormMessage('Please enter a message (at least 10 characters).', 'error');
+    if (!data.message.trim() || (data.message.length < 10 && data.message.length > 80)) {
+        showFormMessage('Please enter a message (at least 10 characters, not more than 80 characters).', 'error');
         return false;
     }
 
@@ -342,7 +366,7 @@ function initContentRender() {
                 // google analytics tracking for SPA article views
                 const urlObj = new URL(`${window.location.origin + '/' + url}`);
                 console.log('Tracking page view for:', urlObj.pathname);
-                gtag('event', 'page_view', {                   
+                gtag('event', 'page_view', {
                     page_location: `${window.location.origin + '/' + url}`,
                     page_path: urlObj.pathname
                 });
@@ -367,6 +391,9 @@ function initContentRender() {
                     if (document.querySelector('.content-render.active')) {
                         document.querySelector('.featured-reports').style.display = 'none';
                         document.querySelector('.categories').style.display = 'none';
+                        if (url === 'contact.html') {
+                            initContactForm();
+                        }
                     }
                 } else {
                     contentFrame.innerHTML = '<p style="padding: 2rem; color: red;">Error: Could not load article content</p>';
