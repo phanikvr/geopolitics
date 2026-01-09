@@ -307,6 +307,22 @@ function initReportsCarousel() {
         }, { passive: false });
     }
 
+    // Setup touch scrolling for mobile
+    function setupTouchScrolling() {
+        let startX = 0;
+        let scrollLeft = 0;
+
+        grid.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX;
+            scrollLeft = grid.scrollLeft;
+        }, { passive: true });
+
+        grid.addEventListener('touchmove', (e) => {
+            if (!isMobile()) return;
+            e.preventDefault();
+        }, { passive: false });
+    }
+
     function slide(direction) {
         const firstCard = cards[0];
         const style = window.getComputedStyle(firstCard);
