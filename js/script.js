@@ -270,7 +270,7 @@ function initReportsCarousel() {
             // MOBILE: Always show carousel, hide arrows
             container.classList.add('is-carousel');
             grid.classList.add('is-carousel');
-            grid.style.overflowX = 'auto';           
+            grid.style.overflowX = 'auto';
             // setup touch scrolling
             setupTouchScrolling();
         }
@@ -289,6 +289,22 @@ function initReportsCarousel() {
                 grid.scrollLeft = 0;
             }
         }
+    }
+
+    // Setup touch scrolling for mobile
+    function setupTouchScrolling() {
+        let startX = 0;
+        let scrollLeft = 0;
+
+        grid.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX;
+            scrollLeft = grid.scrollLeft;
+        }, { passive: true });
+
+        grid.addEventListener('touchmove', (e) => {
+            if (!isMobile()) return;
+            e.preventDefault();
+        }, { passive: false });
     }
 
     // Setup touch scrolling for mobile
@@ -365,6 +381,8 @@ function initContentRender() {
     const contentRender = document.getElementById('contentRender');
     const contentFrame = document.getElementById('contentFrame');
     const closeBtn = document.getElementById('contentCloseBtn');
+    const listenBtn = document.getElementById('listenBtn');
+    const stopBtn = document.getElementById('stopBtn');
 
     if (!contentRender) return;
 
@@ -374,6 +392,7 @@ function initContentRender() {
             e.preventDefault();
             const articleUrl = e.target.getAttribute('data-article');
             if (articleUrl) {
+                document.getElementById("contentFrame").setAttribute("data-lang", "en-US");
                 openArticle(articleUrl);
             }
         }
@@ -381,6 +400,7 @@ function initContentRender() {
             e.preventDefault();
             const articleUrl = e.target.getAttribute('data-article');
             if (articleUrl) {
+                document.getElementById("contentFrame").setAttribute("data-lang", "hi-IN");
                 openArticle(articleUrl);
             }
         }
@@ -389,6 +409,16 @@ function initContentRender() {
     // Close button handler
     if (closeBtn) {
         closeBtn.addEventListener('click', closeArticle);
+    }
+    // Listen button handler (for future implementation)
+    if (listenBtn) {
+        listenBtn.addEventListener('click', speakText);
+    }
+    // Stop button handler (for future implementation)
+    if (stopBtn) {
+        stopBtn.addEventListener('click', function () {
+            window.speechSynthesis.cancel();
+        });
     }
 
     // Keyboard escape key
@@ -400,6 +430,7 @@ function initContentRender() {
 
     function openArticle(url) {
         console.log(`Loading article:${window.location.origin + '/' + url}`);
+
         fetch(url)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to load article');
@@ -452,6 +483,7 @@ function initContentRender() {
     }
 
     function closeArticle() {
+        window.speechSynthesis.cancel();
         contentRender.classList.remove('active');
         contentFrame.innerHTML = '';
         document.querySelector('.featured-reports').style.display = 'block';
